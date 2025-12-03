@@ -1,0 +1,30 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Choose environment: dev/test/prod')
+  }
+
+  stages {
+    stage('Build') {
+      steps {
+        echo "Building for environment: ${params.ENVIRONMENT}"
+        sh 'echo "Build step..."'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        echo "Testing for environment: ${params.ENVIRONMENT}"
+        sh 'echo "Test step..."'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        echo "Deploying to environment: ${params.ENVIRONMENT}"
+        sh 'echo "Deploy step..."'
+      }
+    }
+  }
+}
