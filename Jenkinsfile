@@ -1,3 +1,7 @@
+def isMainBranch() {
+  return sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim() in ['main','master']
+}
+
 pipeline {
   agent any
 
@@ -43,24 +47,14 @@ pipeline {
     }
 
     stage('Approval') {
-      when {
-        anyOf {
-          branch 'main'
-          branch 'master'
-        }
-      }
+      when { expression { isMainBranch() } }
       steps {
         input message: "Approve Terraform apply to create/update resources?", ok: "Apply"
       }
     }
 
     stage('Apply') {
-      when {
-        anyOf {
-          branch 'main'
-          branch 'master'
-        }
-      }
+      when { expression { isMainBranch() } }
       steps {
         dir("${TF_DIR}") {
           sh '''
