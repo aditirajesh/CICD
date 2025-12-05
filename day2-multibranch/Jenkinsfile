@@ -1,0 +1,33 @@
+@Library('mylib') _
+
+pipeline {
+  agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        echo "Building branch: ${env.BRANCH_NAME}"
+        sh 'echo build'
+      }
+    }
+
+    stage('Main Flow (with shared lib)') {
+        when {
+        expression {
+          def b = (env.GIT_BRANCH ?: "").trim()
+          if (b) {
+            return b == 'origin/main' || b == 'origin/master' || b == 'main' || b == 'master'
+          }
+          def inferred = sh(script: "git name-rev --name-only --refs=refs/remotes/origin/* HEAD | head -n 1", returnStdout: true).trim()
+          return inferred.contains("origin/main") || inferred.contains("origin/master")
+        }
+      }
+      steps {
+        script {
+          simple.hello(env.BRANCH_NAME)
+          simple.deploy("prod")
+        }
+      }
+    }
+  }
+}
